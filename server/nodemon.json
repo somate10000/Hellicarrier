@@ -1,0 +1,6 @@
+{
+    "env": {
+        "MONGO_USER": "somate10000",
+        "MONGO_PASSWORD": "groundbear"
+    }
+}
