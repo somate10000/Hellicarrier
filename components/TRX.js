@@ -1,4 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useFonts } from "expo-font";
+import Filter from "../components/filter";
+import Sections from "./Sections";
+import SECTIONS from "../components/MOCK_API";
 import {
   View,
   Text,
@@ -13,40 +17,46 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useFonts } from "expo-font";
-import SECTIONS from "./MOCK_API";
+import { useQuery, gql } from "@apollo/client";
+import { GetTrans } from "../GraphQL/Queries";
 
-const Filter = [
-  "Name",
-  "Date",
-  "Type",
-  "Status",
-  "5k - 10k",
-  "10k - 50k",
-  "50k - 100k",
-];
+const generateColor = () => {
+  const randomColor = Math.floor(Math.random() * 16777215)
+    .toString(16)
+    .padStart(6, "0");
+  return `#${randomColor}`;
+};
 
-export default function QApp() {
+const TRX = () => {
+  const { error, loading, data } = useQuery(GetTrans);
+  console.log(error);
+
+  const Datta = [];
+
   const [loaded] = useFonts({
     Montserrat: require("../assets/fonts/Oxanium-SemiBold.ttf"),
     PoppinsM: require("../assets/fonts/Poppins-Medium.ttf"),
     PoppinsR: require("../assets/fonts/Poppins-Regular.ttf"),
   });
 
-  if (!loaded) {
+  if (!loaded & !data) {
     return (
       <View style={{ alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator size="large" color={"pink"} />
       </View>
     );
   }
-
-  const generateColor = () => {
-    const randomColor = Math.floor(Math.random() * 16777215)
-      .toString(16)
-      .padStart(6, "0");
-    return `#${randomColor}`;
-  };
+  if (!data) {
+    return (
+      <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" color={"pink"} />
+      </View>
+    );
+  } else {
+    const Array = data.dates;
+    Datta.splice(0, Datta.length, ...Array);
+    console.log(Array);
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -56,14 +66,7 @@ export default function QApp() {
         >
           Helli<Text style={{ color: "black" }}>carrier</Text>
         </Text>
-        <Image
-          source={require("../assets/h1.jpg")}
-          style={{
-            height: 42,
-            width: 42,
-            borderRadius: 42,
-          }}
-        />
+        <Image source={require("../assets/h1.jpg")} style={styles.img} />
       </View>
       <View style={{ paddingHorizontal: 10 }}>
         <View style={styles.input}>
@@ -92,100 +95,12 @@ export default function QApp() {
           </ScrollView>
         </View>
         <View>
-          <Text style={{ marginVertical: 5, fontFamily: "PoppinsR" }}>
-            {" "}
-            Transactions
-          </Text>
-
-          <SectionList
-            style={{ height: "90%" }}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{ paddingHorizontal: 10 }}
-            stickySectionHeadersEnabled={true}
-            sections={SECTIONS}
-            renderItem={({ item }) => (
-              <View>
-                <View style={{ flexDirection: "row", marginVertical: 10 }}>
-                  <View
-                    style={[
-                      styles.Avatar,
-                      { backgroundColor: generateColor() },
-                    ]}
-                  >
-                    <Text style={{ color: "white", fontSize: 17 }}>
-                      {item.AV}
-                    </Text>
-                  </View>
-
-                  <View
-                    style={{
-                      width: "85%",
-                      marginLeft: 10,
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <View>
-                      <Text style={{ fontSize: 16 }}>{item.name}</Text>
-                      <Text
-                        style={{ marginTop: 5, color: "grey", fontSize: 13 }}
-                      >
-                        {item.category}
-                      </Text>
-                    </View>
-                    <View>
-                      <View style={{ width: 90 }}>
-                        <Text
-                          style={{
-                            color: item.type === "Debit" ? "#B22222" : "green",
-                            fontSize: 14,
-                            fontFamily: "PoppinsM",
-                          }}
-                        >
-                          ₦{item.amount}.00
-                        </Text>
-                      </View>
-                      <Text
-                        style={{
-                          color: item.type === "Debit" ? "#B22222" : "green",
-                          marginTop: 5,
-                          fontSize: 13,
-                        }}
-                      >
-                        {item.type}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            )}
-            ListFooterComponent={({ section }) => (
-              <View style={{ backgroundColor: "green", height: 800 }}>
-                <Text>vkuyfkufkufuk</Text>
-              </View>
-            )}
-            renderSectionHeader={({ section }) => (
-              <View style={{ backgroundColor: "white", width: "150%" }}>
-                <Text style={{ fontSize: 13, fontFamily: "PoppinsM" }}>
-                  {section.title}
-                </Text>
-                <View
-                  style={{
-                    height: 0.5,
-                    backgroundColor: "grey",
-                    width: "100%",
-                    alignSelf: "center",
-                    marginVertical: 10,
-                  }}
-                />
-              </View>
-            )}
-          ></SectionList>
+          <Sections data={Datta} />
         </View>
       </View>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -198,6 +113,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     flexDirection: "row",
+  },
+  img: {
+    height: 42,
+    width: 42,
+    borderRadius: 42,
   },
   input: {
     backgroundColor: "white",
@@ -220,11 +140,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 5,
   },
-  Avatar: {
-    height: 45,
-    width: 45,
-    borderRadius: 100,
-    alignItems: "center",
-    justifyContent: "center",
-  },
 });
+
+export default TRX;
