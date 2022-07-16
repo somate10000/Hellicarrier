@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
 import Filter from "../components/filter";
 import Sections from "./Sections";
-import SECTIONS from "../components/MOCK_API";
 import {
   View,
   Text,
@@ -20,13 +19,6 @@ import {
 import { useQuery, gql } from "@apollo/client";
 import { GetTrans } from "../GraphQL/Queries";
 
-const generateColor = () => {
-  const randomColor = Math.floor(Math.random() * 16777215)
-    .toString(16)
-    .padStart(6, "0");
-  return `#${randomColor}`;
-};
-
 const TRX = () => {
   const { error, loading, data } = useQuery(GetTrans);
   console.log(error);
@@ -39,17 +31,17 @@ const TRX = () => {
     PoppinsR: require("../assets/fonts/Poppins-Regular.ttf"),
   });
 
-  if (!loaded & !data) {
+  if (!loaded ) {
     return (
       <View style={{ alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" color={"pink"} />
+        <ActivityIndicator size="large" color={"white"} />
       </View>
     );
   }
   if (!data) {
     return (
       <View style={{ alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" color={"pink"} />
+        <ActivityIndicator size="large" color={"white"} />
       </View>
     );
   } else {
