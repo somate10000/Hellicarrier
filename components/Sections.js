@@ -62,9 +62,8 @@ const Sections = (props) => {
           </View>
         )}
         ListFooterComponent={({ section }) => (
-          <View style={{ backgroundColor: "green", height: 800 }}>
-            <Text>vkuyfkufkufuk</Text>
-          </View>
+          <View style={{ backgroundColor: "white", height: 500 }} />
+            
         )}
         renderSectionHeader={({ section }) => (
           <View style={styles.sticky}>
